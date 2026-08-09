@@ -142,9 +142,30 @@
   }
 
   /* ---------- Cloud sync (jsonstorage.net, public-write key) ---------- */
+  var syncStatusEl = document.getElementById("syncStatus");
+  var refreshBtn = document.getElementById("refreshBoard");
+
+  function setSyncStatus(state) {
+    if (!syncStatusEl) return;
+    syncStatusEl.classList.remove("offline", "loading");
+    var label;
+    if (state === "loading") {
+      syncStatusEl.classList.add("loading");
+      label = "Syncing…";
+    } else if (state === "offline") {
+      syncStatusEl.classList.add("offline");
+      label = "Offline — showing saved board";
+    } else {
+      label = "Live";
+    }
+    syncStatusEl.innerHTML = '<span class="dot"></span>' + label;
+  }
+
   function fetchCloud() {
     if (!window.fetch) return;
-    fetch(CLOUD_ITEM, { cache: "no-store" })
+    setSyncStatus("loading");
+    var t = Date.now();
+    fetch(CLOUD_ITEM + "?t=" + t, { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("status " + res.status);
         return res.json();
@@ -155,9 +176,13 @@
           setCloudCache(data);
           render();
           updateStats();
+          setSyncStatus("live");
         }
       })
-      .catch(function () {});
+      .catch(function (err) {
+        console.warn("Leaderboard cloud sync failed:", err);
+        setSyncStatus("offline");
+      });
   }
 
   function pushCloud() {
@@ -259,4 +284,5 @@
   render();
   updateStats();
   fetchCloud();
+  if (refreshBtn) refreshBtn.addEventListener("click", fetchCloud);
 })();
