@@ -192,7 +192,7 @@
     if (!playing || gameOver) return;
     if (dropLocked) return;
     var f = FRUITS[curType];
-    fruits.push({ t: curType, x: clampX(x, f.r), y: -f.r, vx: 0, vy: 0, age: 0, angle: 0, w: 0, had: false, aboveSince: 0 });
+    fruits.push({ t: curType, x: clampX(x, f.r), y: -f.r, vx: 0, vy: 0, age: 0, angle: 0, w: 0, had: false, aboveSince: 0, spawn: 1 });
     addScore(1 << curType, clampX(x, f.r), 0, false);
     curType = nextType;
     nextType = randomRank();
@@ -231,7 +231,8 @@
       angle: (a.angle + b.angle) / 2,
       w: (a.w + b.w) / 4,
       had: true,
-      aboveSince: 0
+      aboveSince: 0,
+      spawn: 0
     });
     playCombo();
     a.dead = true;
@@ -246,6 +247,7 @@
       if (f.dead) continue;
       var r = FRUITS[f.t].r;
       f.age += h;
+      if (f.spawn !== undefined && f.spawn < 1) f.spawn = Math.min(1, f.spawn + h * 6);
       f.vy += GRAVITY * h;
       f.x += f.vx * h;
       f.y += f.vy * h;
@@ -341,23 +343,29 @@
     }
 
     var merged = false;
-    outer: for (i = 0; i < fruits.length; i++) {
-      var a2 = fruits[i];
-      if (a2.dead) continue;
-      for (j = i + 1; j < fruits.length; j++) {
-        var b2 = fruits[j];
-        if (b2.dead) continue;
-        if (a2.t !== b2.t || a2.t >= FRUITS.length - 1) continue;
-        var ra2 = FRUITS[a2.t].r;
-        var rb2 = FRUITS[b2.t].r;
-        var dx2 = b2.x - a2.x;
-        var dy2 = b2.y - a2.y;
-        if (dx2 * dx2 + dy2 * dy2 <= (ra2 + rb2) * (ra2 + rb2)) {
-          mergeFruit(i, j);
-          merged = true;
-          break outer;
+    var budget = 5;
+    outer: while (budget-- > 0) {
+      for (i = 0; i < fruits.length; i++) {
+        var a2 = fruits[i];
+        if (a2.dead) continue;
+        for (j = i + 1; j < fruits.length; j++) {
+          var b2 = fruits[j];
+          if (b2.dead) continue;
+          if (a2.t !== b2.t || a2.t >= FRUITS.length - 1) continue;
+          var ra2 = FRUITS[a2.t].r;
+          var rb2 = FRUITS[b2.t].r;
+          var dx2 = b2.x - a2.x;
+          var dy2 = b2.y - a2.y;
+          var rr2 = ra2 + rb2;
+          var slop = Math.min(6, Math.max(2, rr2 * 0.03));
+          if (dx2 * dx2 + dy2 * dy2 <= (rr2 + slop) * (rr2 + slop)) {
+            mergeFruit(i, j);
+            merged = true;
+            continue outer;
+          }
         }
       }
+      break;
     }
     fruits = fruits.filter(function (f) { return !f.dead; });
     return merged;
@@ -946,7 +954,8 @@
 
     for (var i = 0; i < fruits.length; i++) {
       var f = fruits[i];
-      drawFruit(f.x, f.y, f.t, undefined, f.angle);
+      var sp = (f.spawn !== undefined && f.spawn < 1) ? 0.6 + 0.4 * f.spawn : undefined;
+      drawFruit(f.x, f.y, f.t, sp, f.angle);
     }
 
     for (var k = 0; k < rings.length; k++) {
