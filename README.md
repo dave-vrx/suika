@@ -13,6 +13,8 @@ A fast, juicy take on the classic watermelon-merge puzzle — built for the brow
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=for-the-badge&logo=github-pages&logoColor=white)
 
+[![Discord](https://img.shields.io/badge/Discord-Come_say_hi!-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=404EED)](https://discord.com/users/425958565812109342)
+
 </div>
 
 ---
@@ -127,5 +129,7 @@ This project is for personal/learning use. The watermelon logo and gameplay conc
 <div align="center">
 
 **Built with ❤️ and a lot of melons by [Dave-VR](https://github.com/dave-vrx)** 🍉
+
+📬 Have a score to beat or a merge to brag about? **Say hi on [Discord](https://discord.com/users/425958565812109342)!**
 
 </div>
