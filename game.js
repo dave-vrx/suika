@@ -66,6 +66,7 @@
   } catch (e) {}
 
   var aimX = W / 2;
+  var touchAiming = false;
   var curType = randomRank();
   var nextType = randomRank();
   var dropLocked = false;
@@ -1051,17 +1052,33 @@
   }
 
   canvas.addEventListener("pointermove", function (e) {
-    aimX = toCanvasX(e);
+    if (playing && !gameOver) aimX = toCanvasX(e);
   });
 
   canvas.addEventListener("pointerdown", function (e) {
     e.preventDefault();
     aimX = toCanvasX(e);
+    if (e.pointerType === "touch") {
+      touchAiming = true;
+      return;
+    }
     if (gameOver) {
       restart();
       return;
     }
     dropAt(aimX);
+  });
+
+  canvas.addEventListener("pointerup", function (e) {
+    if (e.pointerType === "touch" && touchAiming) {
+      touchAiming = false;
+      if (gameOver) restart();
+      else dropAt(aimX);
+    }
+  });
+
+  canvas.addEventListener("pointercancel", function () {
+    touchAiming = false;
   });
 
   canvas.addEventListener("touchstart", function (e) {

@@ -1405,3 +1405,188 @@ a {
   .leaderboard { font-size: 13px; }
   .leaderboard th, .leaderboard td { padding: 10px 12px; }
 }
+
+/* ---------- MOBILE FRIENDLINESS ---------- */
+a,
+button,
+input {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.navbar {
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+
+.game-overlay {
+  overflow-y: auto;
+}
+
+@media (hover: none) {
+  .step-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .container {
+    width: 94%;
+  }
+
+  .hero {
+    padding-top: 112px;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    margin-bottom: 16px;
+  }
+
+  .hero-sub {
+    font-size: 0.98rem;
+    margin-bottom: 26px;
+  }
+
+  .hero-actions {
+    margin-bottom: 40px;
+  }
+
+  .hero-stats {
+    gap: 22px;
+  }
+
+  .stat-num {
+    font-size: 1.7rem;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+  }
+
+  .section {
+    padding: 60px 0;
+  }
+
+  .section-title {
+    font-size: 1.9rem;
+  }
+
+  .section-sub {
+    font-size: 0.98rem;
+  }
+
+  .game-panel {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .game-hud {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .game-stat {
+    padding: 8px 4px;
+  }
+
+  .game-stat-label {
+    font-size: 0.6rem;
+  }
+
+  .game-stat-value {
+    font-size: 1.05rem;
+  }
+
+  .game-hint {
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+
+  .chain-label {
+    font-size: 0.68rem;
+  }
+
+  .step-card {
+    padding: 22px 18px;
+  }
+
+  .game-overlay {
+    padding: 12px;
+  }
+
+  .game-over-card {
+    padding: 24px 16px;
+  }
+
+  .game-over-card h3 {
+    font-size: 1.35rem;
+  }
+
+  .game-over-card p strong {
+    font-size: 1.3rem;
+  }
+
+  .rank-box {
+    padding: 12px;
+  }
+
+  .podium {
+    gap: 6px;
+  }
+
+  .podium-slot {
+    padding: 12px 6px;
+  }
+
+  .podium-slot .podium-medal {
+    font-size: 22px;
+  }
+
+  .podium-slot .podium-name {
+    font-size: 12px;
+  }
+
+  .podium-slot .podium-score {
+    font-size: 14px;
+  }
+
+  .board-wrap {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-stats {
+    gap: 16px;
+  }
+
+  .stat-num {
+    font-size: 1.5rem;
+  }
+
+  .game-hud {
+    gap: 6px;
+  }
+
+  .game-stat-value {
+    font-size: 0.95rem;
+  }
+
+  .podium-slot .podium-medal {
+    font-size: 18px;
+  }
+
+  .podium-slot .podium-name {
+    font-size: 11px;
+  }
+
+  .podium-slot .podium-score {
+    font-size: 12px;
+  }
+
+  .leaderboard td.lb-date,
+  .leaderboard th:nth-child(4) {
+    display: none;
+  }
+}
