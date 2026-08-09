@@ -31,6 +31,7 @@
   var FRICTION = 0.35;
   var CONTACT_FRICTION = 0.97;
   var BEST_KEY = "suikaleague_best";
+  var GAMES_KEY = "suika_games";
   var DEATH_Y = 40;
   var REST_MS = 1000;
 
@@ -83,6 +84,12 @@
   var finalScoreEl = document.getElementById("finalScore");
   var newBestEl = document.getElementById("newBest");
   var restartBtn = document.getElementById("restartBtn");
+  var rankBox = document.getElementById("rankBox");
+  var finalRankEl = document.getElementById("finalRank");
+  var nameInput = document.getElementById("nameInput");
+  var submitScoreBtn = document.getElementById("submitScore");
+  var lastName = "";
+  var pendingSaved = false;
 
   bestEl.textContent = best.toLocaleString();
   buildChainLegend();
@@ -373,6 +380,24 @@
     return false;
   }
 
+  function saveScore() {
+    if (pendingSaved || !window.SuikaLB) return;
+    var name = nameInput ? (nameInput.value.trim() || "Player") : "Player";
+    name = name.slice(0, 16);
+    var rank = window.SuikaLB.submit(name, score);
+    lastName = name;
+    pendingSaved = true;
+    if (finalRankEl) finalRankEl.textContent = "#" + rank;
+    if (submitScoreBtn) {
+      submitScoreBtn.disabled = true;
+      submitScoreBtn.textContent = "Saved ✓";
+    }
+    if (rankBox) {
+      var t = rankBox.querySelector(".rank-title");
+      if (t) t.textContent = "Score saved!";
+    }
+  }
+
   function endGame() {
     gameOver = true;
     shake = 1;
@@ -382,12 +407,35 @@
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
       bestEl.textContent = best.toLocaleString();
     }
+    try {
+      var games = parseInt(localStorage.getItem(GAMES_KEY), 10) || 0;
+      localStorage.setItem(GAMES_KEY, String(games + 1));
+    } catch (e) {}
+    if (window.SuikaLB && window.SuikaLB.refresh) window.SuikaLB.refresh();
     finalScoreEl.textContent = score.toLocaleString();
     newBestEl.hidden = !isNew;
+    pendingSaved = false;
+    if (rankBox) {
+      var q = window.SuikaLB ? window.SuikaLB.qualifies(score) : null;
+      if (q && submitScoreBtn) {
+        rankBox.hidden = false;
+        finalRankEl.textContent = "#" + q.rank;
+        nameInput.value = lastName || "";
+        submitScoreBtn.disabled = false;
+        submitScoreBtn.textContent = "Save Score";
+        var t = rankBox.querySelector(".rank-title");
+        if (t) t.textContent = "You made the leaderboard!";
+        overlay.hidden = false;
+        nameInput.focus();
+      } else {
+        rankBox.hidden = true;
+      }
+    }
     overlay.hidden = false;
   }
 
   function restart() {
+    if (score > 0 && !pendingSaved && rankBox && !rankBox.hidden) saveScore();
     fruits = [];
     floaters = [];
     rings = [];
@@ -399,6 +447,8 @@
     playing = true;
     dropLocked = false;
     aimX = W / 2;
+    if (rankBox) rankBox.hidden = true;
+    pendingSaved = false;
     overlay.hidden = true;
     curType = randomRank();
     nextType = randomRank();
@@ -1026,6 +1076,7 @@
 
   document.addEventListener("keydown", function (e) {
     if (!playing) return;
+    if (e.target && e.target.tagName === "INPUT") return;
     if (gameOver) {
       if (e.key === " " || e.key === "Enter") restart();
       return;
@@ -1036,6 +1087,15 @@
   });
 
   if (restartBtn) restartBtn.addEventListener("click", restart);
+  if (submitScoreBtn) submitScoreBtn.addEventListener("click", saveScore);
+  if (nameInput) {
+    nameInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        saveScore();
+      }
+    });
+  }
 
   requestAnimationFrame(loop);
 })();

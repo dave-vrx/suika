@@ -1,6 +1,12 @@
 (function () {
   "use strict";
 
+  var LB_KEY = "suika_leaderboard";
+  var GAMES_KEY = "suika_games";
+  var BEST_KEY = "suikaleague_best";
+  var MAX = 10;
+  var lastEntryDate = null;
+
   /* ---------- Navbar scroll state ---------- */
   var navbar = document.getElementById("navbar");
   function onScroll() {
@@ -28,184 +34,150 @@
     });
   }
 
-  /* ---------- Animated stat counters ---------- */
-  var counters = document.querySelectorAll("[data-count]");
-  var counterStarted = false;
-
-  function animateCounters() {
-    if (counterStarted) return;
-    counters.forEach(function (el) {
-      var target = parseInt(el.getAttribute("data-count"), 10) || 0;
-      var duration = 1600;
-      var startTime = null;
-
-      function tick(now) {
-        if (!startTime) startTime = now;
-        var progress = Math.min((now - startTime) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.round(target * eased).toLocaleString();
-        if (progress < 1) requestAnimationFrame(tick);
-        else el.textContent = target.toLocaleString();
-      }
-      requestAnimationFrame(tick);
-    });
-    counterStarted = true;
-  }
-
-  if ("IntersectionObserver" in window && counters.length) {
-    var io = new IntersectionObserver(
-      function (entries) {
-        if (entries.some(function (e) { return e.isIntersecting; })) {
-          animateCounters();
-          io.disconnect();
-        }
-      },
-      { threshold: 0.4 }
-    );
-    io.observe(counters[0]);
-  } else if (counters.length) {
-    animateCounters();
-  }
-
-  /* ---------- Tutorial guides content ---------- */
-  var TUTORIALS = {
-    "first-game": {
-      thumb: "🍒",
-      tag: "Beginner",
-      tagClass: "tag-beginner",
-      title: "Your First Game in Melons &amp; Chill",
-      content:
-        "<p>Welcome to the arena! Getting into your first round takes about two minutes.</p>" +
-        "<h4>Find the world</h4>" +
-        "<ul>" +
-        "<li>Open VRChat and go to <strong>Worlds</strong>.</li>" +
-        "<li>Search <strong>Melons &amp; Chill</strong> and hit Enter.</li>" +
-        "<li>Click the world and enter — then favorite it for next time.</li>" +
-        "</ul>" +
-        "<h4>Play your first round</h4>" +
-        "<ul>" +
-        "<li>Your fruit spawns at the top and follows your cursor / hand.</li>" +
-        "<li>Move to where you want it and let go to drop.</li>" +
-        "<li>Drop two of the same fruit next to each other to merge them.</li>" +
-        "<li>Keep merging up the chain — don't let the stack cross the line!</li>" +
-        "</ul>" +
-        "<p>That's it. You're officially a melon. 🍉</p>"
-    },
-    "fruit-chain": {
-      thumb: "🍇",
-      tag: "Intermediate",
-      tagClass: "tag-intermediate",
-      title: "The Complete Fruit Chain",
-      content:
-        "<p>Suika runs on a single merge tree. Learn it and every drop becomes a plan.</p>" +
-        "<h4>The 11 fruits</h4>" +
-        "<ul>" +
-        "<li><strong>Cherry</strong> → Strawberry</li>" +
-        "<li><strong>Strawberry</strong> → Grape</li>" +
-        "<li><strong>Grape</strong> → Dekopon</li>" +
-        "<li><strong>Dekopon</strong> → Orange</li>" +
-        "<li><strong>Orange</strong> → Apple</li>" +
-        "<li><strong>Apple</strong> → Pear</li>" +
-        "<li><strong>Pear</strong> → Peach</li>" +
-        "<li><strong>Peach</strong> → Pineapple</li>" +
-        "<li><strong>Pineapple</strong> → Melon</li>" +
-        "<li><strong>Melon</strong> → Watermelon 🏆</li>" +
-        "</ul>" +
-        "<h4>Pro tip</h4>" +
-        "<p>Each merge is worth more than the sum of its parts. Chain a big fruit by merging the pair that sits on top of two of its parents.</p>"
-    },
-    stacking: {
-      thumb: "🍈",
-      tag: "Advanced",
-      tagClass: "tag-advanced",
-      title: "Advanced Stacking Strategies",
-      content:
-        "<p>High scores come from keeping your board low and your merges chained. Here's how the top of the leaderboard does it.</p>" +
-        "<h4>Side-stacking</h4>" +
-        "<ul>" +
-        "<li>Build your biggest fruit off to one side.</li>" +
-        "<li>Keep the center and other side flat for fast pair-dropping.</li>" +
-        "<li>Clear pairs quickly so a merge makes room for the next one.</li>" +
-        "</ul>" +
-        "<h4>Combo timing</h4>" +
-        "<ul>" +
-        "<li>A merge can trigger a chain reaction — that's a combo, and it's worth bonus score.</li>" +
-        "<li>Drop a fruit that will merge into a pair resting on two of its parents.</li>" +
-        "<li>Two fruits = one merge. Three in a row = instant chain.</li>" +
-        "</ul>" +
-        "<h4>Ceiling management</h4>" +
-        "<ul>" +
-        "<li>The danger line is your game-over line — never leave tall single stacks there.</li>" +
-        "<li>If a board is getting tall, use a big fruit as a clean-up tool to clear space.</li>" +
-        "</ul>"
-    },
-    league: {
-      thumb: "🏆",
-      tag: "League",
-      tagClass: "tag-league",
-      title: "How Melons Works",
-      content:
-        "<p>The league runs in seasons. Here's the short version of how you climb.</p>" +
-        "<h4>Seasons &amp; matches</h4>" +
-        "<ul>" +
-        "<li>Each season runs several weeks with weekly match nights.</li>" +
-        "<li>Sign up for matches, get paired, and play.</li>" +
-        "<li>Your placement and wins earn you league points.</li>" +
-        "</ul>" +
-        "<h4>Rank &amp; MMR</h4>" +
-        "<ul>" +
-        "<li>Your best scores feed a seasonal MMR that tracks your skill.</li>" +
-        "<li>Divisions keep games fair — rookies play rookies, pros play pros.</li>" +
-        "<li>End-of-season tournaments crown the Melons champion.</li>" +
-        "</ul>" +
-        "<p>Ready to earn your first points? Join the league and climb the brackets.</p>"
+  /* ---------- Storage helpers ---------- */
+  function load() {
+    try {
+      var a = JSON.parse(localStorage.getItem(LB_KEY));
+      return Array.isArray(a) ? a : [];
+    } catch (e) {
+      return [];
     }
+  }
+
+  function save(a) {
+    try {
+      localStorage.setItem(LB_KEY, JSON.stringify(a));
+    } catch (e) {}
+  }
+
+  function sorted() {
+    return load()
+      .slice()
+      .sort(function (a, b) {
+        return b.score - a.score;
+      })
+      .slice(0, MAX);
+  }
+
+  function getBest() {
+    try {
+      return parseInt(localStorage.getItem(BEST_KEY), 10) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  function getGames() {
+    try {
+      return parseInt(localStorage.getItem(GAMES_KEY), 10) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  /* ---------- Leaderboard API (used by game.js) ---------- */
+  function qualifies(score) {
+    if (!score || score <= 0) return null;
+    var board = sorted();
+    var rank = 1;
+    for (var i = 0; i < board.length; i++) {
+      if (board[i].score > score) rank++;
+      else break;
+    }
+    return rank <= MAX ? { rank: rank } : null;
+  }
+
+  function submit(name, score) {
+    var board = load();
+    var entry = {
+      name: String(name || "Player").trim().slice(0, 16) || "Player",
+      score: Math.floor(score) || 0,
+      date: Date.now()
+    };
+    board.push(entry);
+    save(board);
+    lastEntryDate = entry.date;
+    var q = qualifies(entry.score);
+    render();
+    updateStats();
+    return q ? q.rank : 0;
+  }
+
+  /* ---------- Render ---------- */
+  var podiumEl = document.getElementById("podium");
+  var bodyEl = document.getElementById("boardBody");
+  var emptyEl = document.getElementById("boardEmpty");
+
+  var MEDALS = ["🥇", "🥈", "🥉"];
+
+  function renderPodium(board) {
+    if (!podiumEl) return;
+    podiumEl.innerHTML = "";
+    if (!board.length) return;
+    for (var i = 0; i < 3 && i < board.length; i++) {
+      var e = board[i];
+      var slot = document.createElement("div");
+      slot.className = "podium-slot podium-" + (i + 1);
+      slot.innerHTML =
+        '<div class="podium-medal">' + MEDALS[i] + "</div>" +
+        '<div class="podium-name"></div>' +
+        '<div class="podium-score"></div>';
+      slot.querySelector(".podium-name").textContent = e.name;
+      slot.querySelector(".podium-score").textContent = e.score.toLocaleString();
+      podiumEl.appendChild(slot);
+    }
+  }
+
+  function renderBoard(board) {
+    if (!bodyEl) return;
+    bodyEl.innerHTML = "";
+    if (emptyEl) emptyEl.style.display = board.length ? "none" : "block";
+    board.forEach(function (e, i) {
+      var tr = document.createElement("tr");
+      if (lastEntryDate && e.date === lastEntryDate) tr.className = "lb-new";
+      var dateStr = new Date(e.date).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric"
+      });
+      tr.innerHTML =
+        '<td class="lb-rank">#' + (i + 1) + "</td>" +
+        '<td class="lb-name"></td>' +
+        '<td class="lb-score">' + e.score.toLocaleString() + "</td>" +
+        '<td class="lb-date">' + dateStr + "</td>";
+      tr.querySelector(".lb-name").textContent = e.name;
+      bodyEl.appendChild(tr);
+    });
+  }
+
+  function render() {
+    var board = sorted();
+    renderPodium(board);
+    renderBoard(board);
+  }
+
+  /* ---------- Hero stats ---------- */
+  function updateStats() {
+    var sb = document.getElementById("statBest");
+    var sg = document.getElementById("statGames");
+    var st = document.getElementById("statTop");
+    var board = sorted();
+    if (sb) sb.textContent = getBest().toLocaleString();
+    if (sg) sg.textContent = getGames().toLocaleString();
+    if (st) st.textContent = (board.length ? board[0].score : 0).toLocaleString();
+  }
+
+  window.SuikaLB = {
+    qualifies: qualifies,
+    submit: submit,
+    render: render,
+    getBest: getBest,
+    refresh: updateStats
   };
-
-  /* ---------- Tutorial modal ---------- */
-  var overlay = document.getElementById("modalOverlay");
-  var modalTitle = document.getElementById("modalTitle");
-  var modalThumb = document.getElementById("modalThumb");
-  var modalTag = document.getElementById("modalTag");
-  var modalContent = document.getElementById("modalContent");
-  var modalClose = document.getElementById("modalClose");
-
-  function openModal(key) {
-    var t = TUTORIALS[key];
-    if (!t || !overlay) return;
-    modalThumb.textContent = t.thumb;
-    modalTag.textContent = t.tag;
-    modalTag.className = "tag " + t.tagClass;
-    modalTitle.innerHTML = t.title;
-    modalContent.innerHTML = t.content;
-    overlay.hidden = false;
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeModal() {
-    if (!overlay) return;
-    overlay.hidden = true;
-    document.body.style.overflow = "";
-  }
-
-  document.querySelectorAll(".tutorial-link").forEach(function (link) {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      openModal(link.getAttribute("data-tutorial"));
-    });
-  });
-
-  if (modalClose) modalClose.addEventListener("click", closeModal);
-  if (overlay) {
-    overlay.addEventListener("click", function (e) {
-      if (e.target === overlay) closeModal();
-    });
-  }
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeModal();
-  });
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  render();
+  updateStats();
 })();

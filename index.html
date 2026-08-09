@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Melons | VRChat League</title>
-  <meta name="description" content="The competitive home of Melons &amp; Chill in VRChat. Learn to play, climb the leaderboard, and join the community." />
+  <title>SUIKA GAME | Watermelon-Stacking Arena</title>
+  <meta name="description" content="SUIKA GAME is the competitive home of Melons &amp; Chill in VRChat. Play the classic watermelon merge, climb the leaderboard, and leave your name in the hall of melons." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,15 +18,13 @@
     <div class="container nav-inner">
       <a href="#home" class="brand">
         <span class="brand-icon">🍉</span>
-        <span class="brand-text">Melon<span class="brand-accent">s</span></span>
+        <span class="brand-text">SUIKA<span class="brand-accent">GAME</span></span>
       </a>
       <nav class="nav-links" id="navLinks">
         <a href="#home">Home</a>
         <a href="#play">Play</a>
+        <a href="#leaderboard">Leaderboard</a>
         <a href="#how-to-play">How to Play</a>
-        <a href="#tutorials">Tutorials</a>
-        <a href="#community">Community</a>
-        <a href="#faq">FAQ</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -42,17 +40,17 @@
     <div class="melon melon-4">🍉</div>
     <div class="melon melon-5">🍈</div>
     <div class="container hero-inner">
-      <p class="hero-eyebrow">The official VRChat Melons league</p>
-      <h1 class="hero-title">Melon<span class="gradient-text">s</span></h1>
-      <p class="hero-sub">Compete in <strong>Melons &amp; Chill</strong> — the VRChat Suika watermelon-stacking arena. Learn the game, master combos, climb the leaderboard, and join a community of melon-heads.</p>
+      <p class="hero-eyebrow">The VRChat watermelon-stacking arena</p>
+      <h1 class="hero-title">SUIKA<span class="gradient-text">GAME</span></h1>
+      <p class="hero-sub">Drop melons. Chain combos. Beat the line. Then <strong>leave your name</strong> on the leaderboard for every melon-head to see.</p>
       <div class="hero-actions">
-        <a href="#how-to-play" class="btn btn-primary">Start Playing 🍉</a>
-        <a href="#tutorials" class="btn btn-ghost">Watch Tutorials</a>
+        <a href="#play" class="btn btn-primary">Play Now 🍉</a>
+        <a href="#leaderboard" class="btn btn-ghost">View Leaderboard</a>
       </div>
       <div class="hero-stats">
-        <div class="stat"><span class="stat-num" data-count="1200">0</span><span class="stat-label">Players</span></div>
-        <div class="stat"><span class="stat-num" data-count="85">0</span><span class="stat-label">Tournaments</span></div>
-        <div class="stat"><span class="stat-num" data-count="25">0</span><span class="stat-label">Top Melons</span></div>
+        <div class="stat"><span class="stat-num" id="statBest">0</span><span class="stat-label">Your Best</span></div>
+        <div class="stat"><span class="stat-num" id="statGames">0</span><span class="stat-label">Games Played</span></div>
+        <div class="stat"><span class="stat-num" id="statTop">0</span><span class="stat-label">#1 Score</span></div>
       </div>
     </div>
   </section>
@@ -62,8 +60,8 @@
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">Play Now</p>
-        <h2 class="section-title">Play Suika Right Here</h2>
-        <p class="section-sub">The classic watermelon merge, running in your browser. Drop matching fruits, chain combos, and beat your best score — your high score is saved automatically.</p>
+        <h2 class="section-title">Drop. Merge. Climb.</h2>
+        <p class="section-sub">The classic watermelon merge, right in your browser. Beat your best, earn a spot on the board, and save your name.</p>
       </div>
 
       <div class="game-wrap">
@@ -77,10 +75,19 @@
             <canvas id="suikaCanvas" width="440" height="640"></canvas>
             <div class="game-overlay" id="gameOverlay" hidden>
               <div class="game-over-card">
-                <h3 id="gameOverTitle">Game Over</h3>
+                <h3>Game Over</h3>
                 <p>Score <strong id="finalScore">0</strong></p>
                 <p id="newBest" class="new-best" hidden>New Best! 🏆</p>
-                <button class="btn btn-primary" id="restartBtn">Play Again</button>
+                <div class="rank-box" id="rankBox" hidden>
+                  <p class="rank-title">You made the leaderboard!</p>
+                  <p class="rank-text">Rank <strong id="finalRank">#1</strong></p>
+                  <label class="name-field">
+                    <span>Your name</span>
+                    <input id="nameInput" type="text" maxlength="16" placeholder="Player" autocomplete="off" />
+                  </label>
+                  <button class="btn btn-primary" id="submitScore">Save Score</button>
+                </div>
+                <button class="btn btn-ghost" id="restartBtn">Play Again</button>
               </div>
             </div>
           </div>
@@ -89,180 +96,78 @@
             <span class="chain-label">Merge chain</span>
             <div class="fruit-chain" id="fruitChain"></div>
           </div>
-          <p class="game-hint game-hint-save">Your best score is saved on this device. Beat it to climb the ladder!</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="section" id="leaderboard">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Hall of Melons</p>
+        <h2 class="section-title">Leaderboard</h2>
+        <p class="section-sub">Score big, save your name, and climb the stack. The top 10 live on this board.</p>
+      </div>
+
+      <div class="podium" id="podium"></div>
+
+      <div class="board-wrap">
+        <table class="leaderboard">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Score</th><th>Date</th></tr>
+          </thead>
+          <tbody id="boardBody"></tbody>
+        </table>
+        <p class="board-empty" id="boardEmpty">No scores yet — be the first to leave your name! 🍉</p>
       </div>
     </div>
   </section>
 
   <!-- HOW TO PLAY -->
-  <section class="section" id="how-to-play">
+  <section class="section section-alt" id="how-to-play">
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">Getting Started</p>
-        <h2 class="section-title">How to Play Melons &amp; Chill</h2>
-        <p class="section-sub">New to Suika? Here's everything you need to know before your first drop.</p>
+        <h2 class="section-title">How to Play</h2>
+        <p class="section-sub">One minute to learn, a lifetime to master. Here's everything you need to compete.</p>
       </div>
 
       <div class="steps-grid">
         <div class="step-card">
           <div class="step-num">01</div>
-          <h3>Get VRChat &amp; find the world</h3>
-          <p>Download VRChat on PC or Quest, search for <strong>“Melons &amp; Chill”</strong> in the Worlds menu, and hop in. Grab a comfy seat — the arena is right in front of you.</p>
+          <h3>Aim &amp; drop</h3>
+          <p>Fruits fall from the top. Move with your mouse, arrow keys, or touch to aim, then click or press Space to drop.</p>
         </div>
         <div class="step-card">
           <div class="step-num">02</div>
-          <h3>Know the Suika rules</h3>
-          <p>Fruits drop from the top. Drop them so matching fruits touch and they merge into the next size up. Chain small merges into bigger fruits and stack toward the giant watermelon.</p>
+          <h3>Match to merge</h3>
+          <p>Two of the same fruit that touch merge into the next size up. Drop matching fruit next to each other to grow big melons.</p>
         </div>
         <div class="step-card">
           <div class="step-num">03</div>
-          <h3>Don't hit the ceiling</h3>
-          <p>The line at the top is your danger zone. If fruit stacks above it, the round ends. Play tight, stack wide, and keep your board clean.</p>
+          <h3>Chain combos</h3>
+          <p>A merge that triggers more merges is a combo — and every link pays bonus points. Plan drops that cause chain reactions.</p>
         </div>
         <div class="step-card">
           <div class="step-num">04</div>
-          <h3>Learn the fruit chain</h3>
-          <p>Cherry → Strawberry → Grape → Dekopon → Orange → Apple → Pear → Peach → Pineapple → Melon → Watermelon. Know your merge tree and plan your drops.</p>
+          <h3>Beat the line</h3>
+          <p>If the stack crosses the red danger line, the round is over. Stack wide, keep the middle clear, and stay under the ceiling.</p>
         </div>
         <div class="step-card">
           <div class="step-num">05</div>
-          <h3>Join a Melons match</h3>
-          <p>Weekly matches are hosted by the league. Show up, get paired, and earn points. Win rounds, gain MMR, and climb the seasonal leaderboard.</p>
+          <h3>Climb the chain</h3>
+          <p>Cherry → Strawberry → Grape → Lemon → Orange → Apple → Pear → Peach → Pineapple → Melon → <strong>Watermelon 🏆</strong>. Bigger merges score way more.</p>
         </div>
         <div class="step-card">
           <div class="step-num">06</div>
-          <h3>Practice like a pro</h3>
-          <p>Check the tutorials section for advanced strategy: side-stacking, combo timing, and late-game cleanup to keep your board alive until the big melon.</p>
+          <h3>Leave your name</h3>
+          <p>Hit a top-10 score and the game will ask for your name. Save it, claim your rank, and show up in the hall of melons.</p>
         </div>
       </div>
 
       <div class="center-cta">
-        <a href="#tutorials" class="btn btn-primary">Browse Tutorials →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- TUTORIALS -->
-  <section class="section section-alt" id="tutorials">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">Learn &amp; Improve</p>
-        <h2 class="section-title">Tutorials</h2>
-        <p class="section-sub">From your first fruit to the perfect watermelon — step up your game with these guides.</p>
-      </div>
-
-      <div class="tutorial-grid">
-        <article class="tutorial-card">
-          <div class="tutorial-thumb tutorial-thumb-beginner"><span>🍒</span></div>
-          <div class="tutorial-body">
-            <span class="tag tag-beginner">Beginner</span>
-            <h3>Your First Game in Melons &amp; Chill</h3>
-            <p>A full walkthrough of the world, controls, and your very first Suika round.</p>
-            <a href="#" class="tutorial-link" data-tutorial="first-game">Read guide →</a>
-          </div>
-        </article>
-
-        <article class="tutorial-card">
-          <div class="tutorial-thumb tutorial-thumb-intermediate"><span>🍇</span></div>
-          <div class="tutorial-body">
-            <span class="tag tag-intermediate">Intermediate</span>
-            <h3>The Complete Fruit Chain</h3>
-            <p>Master all 11 fruits, merge sizes, and score values to plan smarter drops.</p>
-            <a href="#" class="tutorial-link" data-tutorial="fruit-chain">Read guide →</a>
-          </div>
-        </article>
-
-        <article class="tutorial-card">
-          <div class="tutorial-thumb tutorial-thumb-advanced"><span>🍈</span></div>
-          <div class="tutorial-body">
-            <span class="tag tag-advanced">Advanced</span>
-            <h3>Advanced Stacking Strategies</h3>
-            <p>Side-stacking, combo timing, and ceiling management for high-score players.</p>
-            <a href="#" class="tutorial-link" data-tutorial="stacking">Read guide →</a>
-          </div>
-        </article>
-
-        <article class="tutorial-card">
-          <div class="tutorial-thumb tutorial-thumb-league"><span>🏆</span></div>
-          <div class="tutorial-body">
-            <span class="tag tag-league">League</span>
-            <h3>How Melons Works</h3>
-            <p>Seasons, matches, points, and how your rank is decided — everything about the league.</p>
-            <a href="#" class="tutorial-link" data-tutorial="league">Read guide →</a>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- COMMUNITY -->
-  <section class="section" id="community">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">Join the Squad</p>
-        <h2 class="section-title">Community</h2>
-        <p class="section-sub">Melons is built by players, for players. Get involved.</p>
-      </div>
-
-      <div class="community-grid">
-        <div class="community-card">
-          <div class="community-icon">🎮</div>
-          <h3>Weekly Matches</h3>
-          <p>Sign up for scheduled league nights. Play ranked matches, earn MMR, and chase the #1 melon crown.</p>
-        </div>
-        <div class="community-card">
-          <div class="community-icon">🏆</div>
-          <h3>Season Tournaments</h3>
-          <p>Climb the leaderboard all season, then prove it in our knockout tournaments with prizes.</p>
-        </div>
-        <div class="community-card">
-          <div class="community-icon">🤝</div>
-          <h3>Melon Buddies</h3>
-          <p>Find practice partners, friendly lobbies, and people to chill with between matches.</p>
-        </div>
-        <div class="community-card">
-          <div class="community-icon">📰</div>
-          <h3>News &amp; Updates</h3>
-          <p>Patch notes, new world features, and league announcements — all in one place.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="section section-alt" id="faq">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">Questions?</p>
-        <h2 class="section-title">Frequently Asked Questions</h2>
-      </div>
-
-      <div class="faq-list">
-        <details class="faq-item">
-          <summary>What is Melons?</summary>
-          <p>Melons is a competitive community league for the VRChat Suika game <strong>Melons &amp; Chill</strong>. We host weekly matches, seasonal leaderboards, and tournaments for melon fans of every skill level.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Do I need to be good at Suika to join?</summary>
-          <p>Nope. The league is split into divisions by skill, and we have plenty of practice lobbies. Join as a rookie and climb as you improve.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Do I need VRChat on PC or is Quest OK?</summary>
-          <p>Both work. Melons &amp; Chill runs on PC and standalone Quest. Desktop mode, VR, and touch controls are all supported.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Is Melons free to join?</summary>
-          <p>Yes. The league, tournaments, and all community resources are completely free.</p>
-        </details>
-        <details class="faq-item">
-          <summary>How do I find the world in VRChat?</summary>
-          <p>Open VRChat → Worlds → search <strong>“Melons &amp; Chill”</strong> → click Enter. You can favorite the world to find it again instantly.</p>
-        </details>
-        <details class="faq-item">
-          <summary>How are league points calculated?</summary>
-          <p>You earn points from match placement and wins. Your best rounds feed into your seasonal MMR, which decides your division and rank.</p>
-        </details>
+        <a href="#play" class="btn btn-primary">Play Now →</a>
       </div>
     </div>
   </section>
@@ -272,10 +177,11 @@
     <div class="melon melon-6">🍈</div>
     <div class="melon melon-7">🍉</div>
     <div class="container final-inner">
-      <h2>Ready to stack some melons?</h2>
-      <p>Join the Melons community and take your Melons &amp; Chill game to the top.</p>
+      <h2>Think you can hit the top 10?</h2>
+      <p>Every run counts. Score big, save your name, and climb the leaderboard.</p>
       <div class="final-actions">
-        <a href="#how-to-play" class="btn btn-primary btn-lg">Learn the Game</a>
+        <a href="#play" class="btn btn-primary btn-lg">Play Now 🍉</a>
+        <a href="#leaderboard" class="btn btn-ghost btn-lg">Check the Board</a>
       </div>
     </div>
   </section>
@@ -286,43 +192,31 @@
       <div class="footer-brand">
         <a href="#home" class="brand">
           <span class="brand-icon">🍉</span>
-          <span class="brand-text">Melon<span class="brand-accent">s</span></span>
+          <span class="brand-text">SUIKA<span class="brand-accent">GAME</span></span>
         </a>
-        <p>An unofficial fan community for Melons &amp; Chill in VRChat. Not affiliated with VRChat or the world creators.</p>
+        <p>The competitive home of Melons &amp; Chill in VRChat. Not affiliated with VRChat or the world creators.</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
-          <h4>Game</h4>
+          <h4>Play</h4>
+          <a href="#play">Play the Game</a>
           <a href="#how-to-play">How to Play</a>
-          <a href="#tutorials">Tutorials</a>
-          <a href="#faq">FAQ</a>
+          <a href="#leaderboard">Leaderboard</a>
         </div>
         <div class="footer-col">
-          <h4>Community</h4>
-          <a href="#community">Weekly Matches</a>
-          <a href="#community">Tournaments</a>
+          <h4>Rules</h4>
+          <a href="#how-to-play">Merging</a>
+          <a href="#how-to-play">Combos</a>
+          <a href="#how-to-play">Danger Line</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <p>© <span id="year"></span> Melons. Made with 🍉 by the community.</p>
+        <p>© <span id="year"></span> SUIKA GAME. Made with 🍉 by the community.</p>
       </div>
     </div>
   </footer>
-
-  <!-- TUTORIAL MODAL -->
-  <div class="modal-overlay" id="modalOverlay" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
-      <div class="modal-thumb" id="modalThumb">🍒</div>
-      <span class="tag" id="modalTag">Beginner</span>
-      <h3 id="modalTitle">Guide</h3>
-      <div class="modal-content" id="modalContent">
-        <p>Guide content goes here.</p>
-      </div>
-    </div>
-  </div>
 
   <script src="game.js"></script>
   <script src="script.js"></script>
