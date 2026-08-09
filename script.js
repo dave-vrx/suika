@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var DISCORD_INVITE = "discord.gg/suikaleague";
+  var DISCORD_INVITE = "discord.gg/AgEG7gzwNF";
 
   /* ---------- Navbar scroll state ---------- */
   var navbar = document.getElementById("navbar");
