@@ -1,8 +1,6 @@
 (function () {
   "use strict";
 
-  var DISCORD_INVITE = "discord.gg/AgEG7gzwNF";
-
   /* ---------- Navbar scroll state ---------- */
   var navbar = document.getElementById("navbar");
   function onScroll() {
@@ -145,22 +143,22 @@
       thumb: "🏆",
       tag: "League",
       tagClass: "tag-league",
-      title: "How SUIKA LEAGUE Works",
+      title: "How Melons Works",
       content:
         "<p>The league runs in seasons. Here's the short version of how you climb.</p>" +
         "<h4>Seasons &amp; matches</h4>" +
         "<ul>" +
         "<li>Each season runs several weeks with weekly match nights.</li>" +
-        "<li>Sign up on the Discord, get paired, and play your matches.</li>" +
+        "<li>Sign up for matches, get paired, and play.</li>" +
         "<li>Your placement and wins earn you league points.</li>" +
         "</ul>" +
         "<h4>Rank &amp; MMR</h4>" +
         "<ul>" +
         "<li>Your best scores feed a seasonal MMR that tracks your skill.</li>" +
         "<li>Divisions keep games fair — rookies play rookies, pros play pros.</li>" +
-        "<li>End-of-season tournaments crown the SUIKA LEAGUE champion.</li>" +
+        "<li>End-of-season tournaments crown the Melons champion.</li>" +
         "</ul>" +
-        "<p>Ready to earn your first points? Join the Discord and say hi in #matchmaking.</p>"
+        "<p>Ready to earn your first points? Join the league and climb the brackets.</p>"
     }
   };
 
@@ -206,56 +204,6 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeModal();
   });
-
-  /* ---------- Copy invite link ---------- */
-  var toast = document.getElementById("toast");
-  var toastTimer = null;
-
-  function showToast(msg) {
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      toast.classList.remove("show");
-    }, 2200);
-  }
-
-  var copyBtn = document.getElementById("copyInvite");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", function () {
-      var done = function () {
-        copyBtn.textContent = "Copied ✓";
-        setTimeout(function () {
-          copyBtn.textContent = "Copy invite";
-        }, 2000);
-        showToast("Invite copied to clipboard 🍉");
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(DISCORD_INVITE).then(done).catch(function () {
-          fallbackCopy(done);
-        });
-      } else {
-        fallbackCopy(done);
-      }
-    });
-  }
-
-  function fallbackCopy(onDone) {
-    var ta = document.createElement("textarea");
-    ta.value = DISCORD_INVITE;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-      document.execCommand("copy");
-      onDone();
-    } catch (err) {
-      showToast("Copy failed — invite: " + DISCORD_INVITE);
-    }
-    document.body.removeChild(ta);
-  }
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById("year");
