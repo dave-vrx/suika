@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SUIKA LEAGUE | Melons & Chill VRChat League</title>
+  <meta name="description" content="SUIKA LEAGUE is the competitive home of Melons & Chill in VRChat. Learn to play, climb the leaderboard, and join the community." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="brand">
+        <span class="brand-icon">🍉</span>
+        <span class="brand-text">SUIKA<span class="brand-accent">LEAGUE</span></span>
+      </a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#play">Play</a>
+        <a href="#how-to-play">How to Play</a>
+        <a href="#tutorials">Tutorials</a>
+        <a href="#community">Community</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://discord.com" target="_blank" rel="noopener" class="btn btn-discord btn-nav">Discord</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="melon melon-1">🍉</div>
+    <div class="melon melon-2">🍈</div>
+    <div class="melon melon-3">🍉</div>
+    <div class="melon melon-4">🍉</div>
+    <div class="melon melon-5">🍈</div>
+    <div class="container hero-inner">
+      <p class="hero-eyebrow">The official VRChat Suika league</p>
+      <h1 class="hero-title">SUIKA<span class="gradient-text">LEAGUE</span></h1>
+      <p class="hero-sub">Compete in <strong>Melons &amp; Chill</strong> — the VRChat Suika watermelon-stacking arena. Learn the game, master combos, climb the leaderboard, and join a community of melon-heads.</p>
+      <div class="hero-actions">
+        <a href="#how-to-play" class="btn btn-primary">Start Playing 🍉</a>
+        <a href="#tutorials" class="btn btn-ghost">Watch Tutorials</a>
+        <a href="https://discord.com" target="_blank" rel="noopener" class="btn btn-discord">
+          <span class="discord-mark"></span> Join the Discord
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num" data-count="1200">0</span><span class="stat-label">Players</span></div>
+        <div class="stat"><span class="stat-num" data-count="85">0</span><span class="stat-label">Tournaments</span></div>
+        <div class="stat"><span class="stat-num" data-count="25">0</span><span class="stat-label">Top Melons</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section class="section section-alt" id="play">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Play Now</p>
+        <h2 class="section-title">Play Suika Right Here</h2>
+        <p class="section-sub">The classic watermelon merge, running in your browser. Drop matching fruits, chain combos, and beat your best score — your high score is saved automatically.</p>
+      </div>
+
+      <div class="game-wrap">
+        <div class="game-panel">
+          <div class="game-hud">
+            <div class="game-stat"><span class="game-stat-label">💯 Score</span><span class="game-stat-value" id="score">0</span></div>
+            <div class="game-stat"><span class="game-stat-label">🏆 Best</span><span class="game-stat-value" id="best">0</span></div>
+            <div class="game-stat game-stat-next"><span class="game-stat-label">Next</span><span class="next-bubble"><canvas id="nextCanvas" width="100" height="100"></canvas></span></div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="suikaCanvas" width="440" height="640"></canvas>
+            <div class="game-overlay" id="gameOverlay" hidden>
+              <div class="game-over-card">
+                <h3 id="gameOverTitle">Game Over</h3>
+                <p>Score <strong id="finalScore">0</strong></p>
+                <p id="newBest" class="new-best" hidden>New Best! 🏆</p>
+                <button class="btn btn-primary" id="restartBtn">Play Again</button>
+              </div>
+            </div>
+          </div>
+          <p class="game-hint">Click / tap to drop &middot; Left / Right to aim &middot; Space to drop</p>
+          <div class="chain-wrap">
+            <span class="chain-label">Merge chain</span>
+            <div class="fruit-chain" id="fruitChain"></div>
+          </div>
+          <p class="game-hint game-hint-save">Your best score is saved on this device. Beat it to climb the ladder!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section class="section" id="how-to-play">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Getting Started</p>
+        <h2 class="section-title">How to Play Melons &amp; Chill</h2>
+        <p class="section-sub">New to Suika? Here's everything you need to know before your first drop.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Get VRChat &amp; find the world</h3>
+          <p>Download VRChat on PC or Quest, search for <strong>“Melons &amp; Chill”</strong> in the Worlds menu, and hop in. Grab a comfy seat — the arena is right in front of you.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Know the Suika rules</h3>
+          <p>Fruits drop from the top. Drop them so matching fruits touch and they merge into the next size up. Chain small merges into bigger fruits and stack toward the giant watermelon.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Don't hit the ceiling</h3>
+          <p>The line at the top is your danger zone. If fruit stacks above it, the round ends. Play tight, stack wide, and keep your board clean.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h3>Learn the fruit chain</h3>
+          <p>Cherry → Strawberry → Grape → Dekopon → Orange → Apple → Pear → Peach → Pineapple → Melon → Watermelon. Know your merge tree and plan your drops.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">05</div>
+          <h3>Join a SUIKA LEAGUE match</h3>
+          <p>Weekly matches are hosted on the Discord. Show up, get paired, and earn points. Win rounds, gain MMR, and climb the seasonal leaderboard.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">06</div>
+          <h3>Practice like a pro</h3>
+          <p>Check the tutorials section for advanced strategy: side-stacking, combo timing, and late-game cleanup to keep your board alive until the big melon.</p>
+        </div>
+      </div>
+
+      <div class="center-cta">
+        <a href="#tutorials" class="btn btn-primary">Browse Tutorials →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TUTORIALS -->
+  <section class="section section-alt" id="tutorials">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Learn &amp; Improve</p>
+        <h2 class="section-title">Tutorials</h2>
+        <p class="section-sub">From your first fruit to the perfect watermelon — step up your game with these guides.</p>
+      </div>
+
+      <div class="tutorial-grid">
+        <article class="tutorial-card">
+          <div class="tutorial-thumb tutorial-thumb-beginner"><span>🍒</span></div>
+          <div class="tutorial-body">
+            <span class="tag tag-beginner">Beginner</span>
+            <h3>Your First Game in Melons &amp; Chill</h3>
+            <p>A full walkthrough of the world, controls, and your very first Suika round.</p>
+            <a href="#" class="tutorial-link" data-tutorial="first-game">Read guide →</a>
+          </div>
+        </article>
+
+        <article class="tutorial-card">
+          <div class="tutorial-thumb tutorial-thumb-intermediate"><span>🍇</span></div>
+          <div class="tutorial-body">
+            <span class="tag tag-intermediate">Intermediate</span>
+            <h3>The Complete Fruit Chain</h3>
+            <p>Master all 11 fruits, merge sizes, and score values to plan smarter drops.</p>
+            <a href="#" class="tutorial-link" data-tutorial="fruit-chain">Read guide →</a>
+          </div>
+        </article>
+
+        <article class="tutorial-card">
+          <div class="tutorial-thumb tutorial-thumb-advanced"><span>🍈</span></div>
+          <div class="tutorial-body">
+            <span class="tag tag-advanced">Advanced</span>
+            <h3>Advanced Stacking Strategies</h3>
+            <p>Side-stacking, combo timing, and ceiling management for high-score players.</p>
+            <a href="#" class="tutorial-link" data-tutorial="stacking">Read guide →</a>
+          </div>
+        </article>
+
+        <article class="tutorial-card">
+          <div class="tutorial-thumb tutorial-thumb-league"><span>🏆</span></div>
+          <div class="tutorial-body">
+            <span class="tag tag-league">League</span>
+            <h3>How SUIKA LEAGUE Works</h3>
+            <p>Seasons, matches, points, and how your rank is decided — everything about the league.</p>
+            <a href="#" class="tutorial-link" data-tutorial="league">Read guide →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section class="section" id="community">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Join the Squad</p>
+        <h2 class="section-title">Community</h2>
+        <p class="section-sub">SUIKA LEAGUE is built by players, for players. Get involved.</p>
+      </div>
+
+      <div class="community-grid">
+        <div class="community-card">
+          <div class="community-icon">🎮</div>
+          <h3>Weekly Matches</h3>
+          <p>Sign up for scheduled league nights. Play ranked matches, earn MMR, and chase the #1 melon crown.</p>
+        </div>
+        <div class="community-card">
+          <div class="community-icon">🏆</div>
+          <h3>Season Tournaments</h3>
+          <p>Climb the leaderboard all season, then prove it in our knockout tournaments with prizes.</p>
+        </div>
+        <div class="community-card">
+          <div class="community-icon">🤝</div>
+          <h3>Melon Buddies</h3>
+          <p>Find practice partners, friendly lobbies, and people to chill with between matches.</p>
+        </div>
+        <div class="community-card">
+          <div class="community-icon">📰</div>
+          <h3>News &amp; Updates</h3>
+          <p>Patch notes, new world features, and league announcements — all in one place.</p>
+        </div>
+      </div>
+
+      <div class="discord-cta">
+        <div class="discord-cta-icon">🍉</div>
+        <div class="discord-cta-text">
+          <h3>Everything happens on Discord</h3>
+          <p>Match signups, rank brackets, and the friendliest melon community in VRChat.</p>
+        </div>
+        <a href="https://discord.com" target="_blank" rel="noopener" class="btn btn-discord btn-lg">
+          <span class="discord-mark"></span> Join SUIKA LEAGUE
+        </a>
+        <button class="btn btn-ghost copy-btn" data-copy="discord.gg/suikaleague" id="copyInvite">Copy invite</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section-alt" id="faq">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Questions?</p>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What is SUIKA LEAGUE?</summary>
+          <p>SUIKA LEAGUE is a competitive community league for the VRChat Suika game <strong>Melons &amp; Chill</strong>. We host weekly matches, seasonal leaderboards, and tournaments for melon fans of every skill level.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I need to be good at Suika to join?</summary>
+          <p>Nope. The league is split into divisions by skill, and we have plenty of practice lobbies. Join as a rookie and climb as you improve.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I need VRChat on PC or is Quest OK?</summary>
+          <p>Both work. Melons &amp; Chill runs on PC and standalone Quest. Desktop mode, VR, and touch controls are all supported.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is SUIKA LEAGUE free to join?</summary>
+          <p>Yes. The league, tournaments, and all community resources are completely free.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do I find the world in VRChat?</summary>
+          <p>Open VRChat → Worlds → search <strong>“Melons &amp; Chill”</strong> → click Enter. You can favorite the world to find it again instantly.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How are league points calculated?</summary>
+          <p>You earn points from match placement and wins. Your best rounds feed into your seasonal MMR, which decides your division and rank.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="melon melon-6">🍈</div>
+    <div class="melon melon-7">🍉</div>
+    <div class="container final-inner">
+      <h2>Ready to stack some melons?</h2>
+      <p>Join SUIKA LEAGUE and take your Melons &amp; Chill game to the top.</p>
+      <div class="final-actions">
+        <a href="https://discord.com" target="_blank" rel="noopener" class="btn btn-primary btn-lg">Join the Discord</a>
+        <a href="#how-to-play" class="btn btn-ghost btn-lg">Learn the Game</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#home" class="brand">
+          <span class="brand-icon">🍉</span>
+          <span class="brand-text">SUIKA<span class="brand-accent">LEAGUE</span></span>
+        </a>
+        <p>An unofficial fan community for Melons &amp; Chill in VRChat. Not affiliated with VRChat or the world creators.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Game</h4>
+          <a href="#how-to-play">How to Play</a>
+          <a href="#tutorials">Tutorials</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community</h4>
+          <a href="#community">Weekly Matches</a>
+          <a href="#community">Tournaments</a>
+          <a href="https://discord.com" target="_blank" rel="noopener">Discord</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© <span id="year"></span> SUIKA LEAGUE. Made with 🍉 by the community.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TUTORIAL MODAL -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <div class="modal-thumb" id="modalThumb">🍒</div>
+      <span class="tag" id="modalTag">Beginner</span>
+      <h3 id="modalTitle">Guide</h3>
+      <div class="modal-content" id="modalContent">
+        <p>Guide content goes here.</p>
+      </div>
+      <a href="https://discord.com" target="_blank" rel="noopener" class="btn btn-discord btn-full">
+        <span class="discord-mark"></span> Ask questions on Discord
+      </a>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">Copied to clipboard 🍉</div>
+
+  <script src="game.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
