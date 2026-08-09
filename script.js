@@ -4,8 +4,13 @@
   var LB_KEY = "suika_leaderboard";
   var GAMES_KEY = "suika_games";
   var BEST_KEY = "suikaleague_best";
+  var CLOUD_ITEM = "https://api.jsonstorage.net/v1/json/9914a949-be0d-4cd1-a81d-6b0016230e60/2d95e380-77b3-4506-9ae2-1b4984050fe6";
+  var CLOUD_KEY = "8c44b31b-a4f6-4886-8058-7583a11dce30";
+  var CLOUD_CACHE_KEY = "suika_cloud_cache";
   var MAX = 10;
   var lastEntryDate = null;
+  var lastRemote = null;
+  var cloudBusy = false;
 
   /* ---------- Navbar scroll state ---------- */
   var navbar = document.getElementById("navbar");
@@ -50,13 +55,45 @@
     } catch (e) {}
   }
 
-  function sorted() {
-    return load()
+  function dedupe(a) {
+    var map = {};
+    for (var i = 0; i < a.length; i++) {
+      var e = a[i];
+      if (e && typeof e.score === "number") map[e.name + "|" + e.score + "|" + e.date] = e;
+    }
+    return Object.keys(map).map(function (k) {
+      return map[k];
+    });
+  }
+
+  function top10(a) {
+    return a
       .slice()
-      .sort(function (a, b) {
-        return b.score - a.score;
+      .sort(function (x, y) {
+        return y.score - x.score;
       })
       .slice(0, MAX);
+  }
+
+  function cloudCache() {
+    try {
+      var c = JSON.parse(localStorage.getItem(CLOUD_CACHE_KEY));
+      return Array.isArray(c) ? c : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setCloudCache(a) {
+    try {
+      localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(a));
+    } catch (e) {}
+  }
+
+  /* Shared board = local entries merged with the last known cloud board */
+  function mergedBoard() {
+    var remote = lastRemote || cloudCache() || [];
+    return top10(dedupe(load().concat(remote)));
   }
 
   function getBest() {
@@ -78,7 +115,7 @@
   /* ---------- Leaderboard API (used by game.js) ---------- */
   function qualifies(score) {
     if (!score || score <= 0) return null;
-    var board = sorted();
+    var board = mergedBoard();
     var rank = 1;
     for (var i = 0; i < board.length; i++) {
       if (board[i].score > score) rank++;
@@ -100,7 +137,48 @@
     var q = qualifies(entry.score);
     render();
     updateStats();
+    pushCloud();
     return q ? q.rank : 0;
+  }
+
+  /* ---------- Cloud sync (jsonstorage.net, public-write key) ---------- */
+  function fetchCloud() {
+    if (!window.fetch) return;
+    fetch(CLOUD_ITEM, { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("status " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        if (Array.isArray(data)) {
+          lastRemote = data;
+          setCloudCache(data);
+          render();
+          updateStats();
+        }
+      })
+      .catch(function () {});
+  }
+
+  function pushCloud() {
+    if (cloudBusy || !window.fetch) return;
+    cloudBusy = true;
+    var payload = mergedBoard();
+    fetch(CLOUD_ITEM + "?apiKey=" + encodeURIComponent(CLOUD_KEY), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        if (res.ok) {
+          lastRemote = payload;
+          setCloudCache(payload);
+        }
+      })
+      .catch(function () {})
+      .then(function () {
+        cloudBusy = false;
+      });
   }
 
   /* ---------- Render ---------- */
@@ -150,7 +228,7 @@
   }
 
   function render() {
-    var board = sorted();
+    var board = mergedBoard();
     renderPodium(board);
     renderBoard(board);
   }
@@ -160,7 +238,7 @@
     var sb = document.getElementById("statBest");
     var sg = document.getElementById("statGames");
     var st = document.getElementById("statTop");
-    var board = sorted();
+    var board = mergedBoard();
     if (sb) sb.textContent = getBest().toLocaleString();
     if (sg) sg.textContent = getGames().toLocaleString();
     if (st) st.textContent = (board.length ? board[0].score : 0).toLocaleString();
@@ -180,4 +258,5 @@
 
   render();
   updateStats();
+  fetchCloud();
 })();
