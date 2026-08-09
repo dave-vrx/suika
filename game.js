@@ -70,6 +70,7 @@
   var curType = randomRank();
   var nextType = randomRank();
   var dropLocked = false;
+  var dropLockedAt = 0;
   var playing = true;
   var gameOver = false;
   var chain = 0;
@@ -198,6 +199,7 @@
     nextType = randomRank();
     chain = 0;
     dropLocked = true;
+    dropLockedAt = performance.now();
     playDrop();
   }
 
@@ -364,6 +366,8 @@
           var rr2 = ra2 + rb2;
           var slop = Math.min(6, Math.max(2, rr2 * 0.03));
           if (dx2 * dx2 + dy2 * dy2 <= (rr2 + slop) * (rr2 + slop)) {
+            markHad(a2);
+            markHad(b2);
             mergeFruit(i, j);
             merged = true;
             continue outer;
@@ -1047,6 +1051,8 @@
       }
 
       if (shake > 0) shake = Math.max(0, shake - dt * 2.5);
+
+      if (dropLocked && performance.now() - dropLockedAt > 1200) dropLocked = false;
 
       if (checkGameOver()) endGame();
     } else if (shake > 0) {
