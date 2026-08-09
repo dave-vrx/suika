@@ -70,6 +70,35 @@ The leaderboard is a **shared, global top 10** — not just your local best.
 
 > ⚠️ The write key is public by design, so scores are spoofable in devtools. It's a casual hall of melons — play nice. 🍉
 
+### 🔑 Using your own leaderboard store
+
+The leaderboard is backed by [jsonstorage.net](https://jsonstorage.net) — a free JSON store with a public-read / key-write API. To point the game at **your own** store instead of the default one:
+
+1. **Create a jsonstorage account** (free) and copy your API key from the dashboard.
+2. **Create a new item** (a blank array for the leaderboard):
+
+   ```bash
+   curl -X POST "https://api.jsonstorage.net/v1/json?apiKey=YOUR_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "[]"
+   ```
+
+   The response contains your item's `uri`, e.g. `https://api.jsonstorage.net/v1/json/xxxx/yyyy`.
+3. **Open `script.js`** and replace the two constants at the top:
+
+   ```js
+   var CLOUD_ITEM = "https://api.jsonstorage.net/v1/json/xxxx/yyyy"; // your item URI
+   var CLOUD_KEY  = "YOUR_API_KEY";                                  // your API key
+   ```
+
+4. **Optional but recommended:** clear the old cached board in your browser (DevTools → Application → Local Storage → delete `suika_cloud_cache` and `suika_leaderboard`) so stale scores from the previous store don't leak into yours.
+5. Commit, push, and the live site now writes to your store.
+
+> **Notes for other devs**
+> - The API key is embedded in the client, so **anyone who visits the page can write to the store** (or read the key). This is a known trade-off for a zero-setup shared board — don't use a secret you care about, and don't expect cheat-proof scores.
+> - jsonstorage caches reads for a few seconds; a fresh score appears for other players on their next load shortly after it's saved.
+> - Free tier allows roughly **1,000 requests/month**. Every page load reads once and every qualifying score writes once — fine for a casual board, not for heavy traffic. If that's a concern, switch the write path to a serverless function instead.
+
 ## 🌐 Deployment
 
 The site auto-deploys from `main` via GitHub Pages. Push and it's live in about a minute:
