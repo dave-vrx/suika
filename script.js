@@ -188,19 +188,33 @@
   function pushCloud() {
     if (cloudBusy || !window.fetch) return;
     cloudBusy = true;
-    var payload = mergedBoard();
-    fetch(CLOUD_ITEM + "?apiKey=" + encodeURIComponent(CLOUD_KEY), {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
+    var local = load();
+    fetch(CLOUD_ITEM + "?t=" + Date.now(), { cache: "no-store" })
       .then(function (res) {
-        if (res.ok) {
-          lastRemote = payload;
-          setCloudCache(payload);
-        }
+        if (!res.ok) throw new Error("read status " + res.status);
+        return res.json();
       })
-      .catch(function () {})
+      .then(function (remote) {
+        if (!Array.isArray(remote)) remote = [];
+        var union = top10(dedupe(local.concat(remote)));
+        return fetch(CLOUD_ITEM + "?apiKey=" + encodeURIComponent(CLOUD_KEY), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(union)
+        }).then(function (res) {
+          if (!res.ok) throw new Error("write status " + res.status);
+          return union;
+        });
+      })
+      .then(function (union) {
+        lastRemote = union;
+        setCloudCache(union);
+        render();
+        updateStats();
+      })
+      .catch(function (err) {
+        console.warn("Leaderboard push failed:", err);
+      })
       .then(function () {
         cloudBusy = false;
       });
