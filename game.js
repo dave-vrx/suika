@@ -252,7 +252,12 @@
       f.x += f.vx * h;
       f.y += f.vy * h;
       f.angle += f.w * h;
-      f.w *= Math.max(0, 1 - 0.8 * h);
+      var fspd = Math.abs(f.vx) + Math.abs(f.vy);
+      if (fspd < 40) f.w *= Math.max(0, 1 - 12 * h);
+      else f.w *= Math.max(0, 1 - 1.2 * h);
+      if (fspd < 6 && Math.abs(f.w) < 0.6) f.w = 0;
+      var maxW = 16;
+      if (f.w > maxW) f.w = maxW; else if (f.w < -maxW) f.w = -maxW;
       if (f.x - r < WALL_L) {
         f.x = WALL_L + r;
         f.vx = Math.abs(f.vx) * 0.3;
